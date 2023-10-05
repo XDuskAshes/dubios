@@ -16,14 +16,20 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local function e(s)
+local finalFunction = "shutdown" --shutdown and reboot do the appropriate things down by lines 162 to 166
+
+local function e(s) --empty check
     return s == nil or s == ""
 end
 
 local onBoardPath
 
-term.clear()
-term.setCursorPos(1,1)
+local function cls() --clear
+    term.clear()
+    term.setCursorPos(1,1)
+end
+
+cls()
 
 local bootPaths = {}
 
@@ -56,6 +62,105 @@ end
 
 local per = peripheral.getNames()
 
-for k,v in pairs(per) do
-    print(k,v)
+for k,v in pairs(per) do --disk file path check.
+    local diskPath
+    if disk.isPresent(v) then
+        local mnt = disk.getMountPath(v)
+        if not fs.exists("/"..mnt.."/boot/db/boot.db") then --If not found, fail.
+            printError("No file to read could be found on /"..mnt.."/")
+        else
+            local handle = fs.open("/"..mnt.."/boot/db/boot.db","r")
+            diskPath = handle.readLine()
+            handle.close()
+        
+                if e("/"..mnt.."/"..diskPath) then --If it gets a returned nil or blank, fail.
+                    printError("read file is a bad path: e(diskPath) check returned nil or blank.")
+                else
+                    if not fs.exists("/"..mnt.."/"..diskPath) then --If it returns true, fail.
+                        printError("diskPath is bad: 'not fs.exists(/"..mnt.."/diskPath)' returned true.")
+                    else
+                        if not fs.isDir("/"..mnt.."/"..diskPath) then --If it returns true, success.
+                            print("Local path '".."/"..mnt.."/"..diskPath.."' is perfectly valid path to execute.")
+                            table.insert(bootPaths,"/"..mnt.."/"..diskPath)
+                        else --If it returns false, fail.
+                            printError("Local path '".."/"..mnt.."/"..diskPath.."' is a bad path: is dir or something outside of an e(diskPath) check.")
+                        end
+                    end
+                end
+        end
+    end
+end
+
+local bootPathsAmount = 0
+
+for k,v in pairs(bootPaths) do
+    bootPathsAmount = bootPathsAmount + 1
+end
+
+if bootPathsAmount < 2 then
+    print("Could only find one boot path.")
+    shell.run(bootPaths[1])
+else
+    print("+===============================+")
+    print("dubios found multiple boot paths.")
+    print("In 3 seconds, you will be able to choose what to boot off of.")
+    sleep(3)
+    cls()
+
+    local allowedPaths = 9
+    local detectedPaths = 0
+    print("Press the corresponding number key.")
+    for k,v in pairs(bootPaths) do
+        detectedPaths = detectedPaths + 1
+        if detectedPaths >= allowedPaths then
+            print(k,v)
+            print("Note: max paths is nine.")
+            break
+        else
+            print(k,v)
+        end
+    end
+
+    while true do
+        local event = {os.pullEvent()}
+        local eventD = event[1]
+    
+        if eventD == "key" then
+            local ck = event[2]
+            if ck == keys.one then --This is bad code. I am aware. Do I care? No. Why? It hasn't broken yet. If it ain't broke, don't fix it.
+                ck = 1
+            elseif ck == keys.two then
+                ck = 2
+            elseif ck == keys.three then
+                ck = 3
+            elseif ck == keys.four then --This is bad code. I am aware. Do I care? No. Why? It hasn't broken yet. If it ain't broke, don't fix it.
+                ck = 4
+            elseif ck == keys.five then
+                ck = 5
+            elseif ck == keys.six then
+                ck = 6
+            elseif ck == keys.seven then
+                ck = 7
+            elseif ck == keys.eight then
+                ck = 8
+            elseif ck == keys.nine then
+                ck = 9
+            end
+
+            for k,v in pairs(bootPaths) do
+                if ck == k then
+                    shell.run(v)
+                end
+            end
+        end
+    break
+    end
+end
+
+print("dubios has run, and assuming that the selection has run its course.")
+sleep(5)
+if finalFunction == "shutdown" then
+    os.shutdown()
+elseif finalFunction == "reboot" then
+    os.reboot()
 end

@@ -1,0 +1,22 @@
+dubios documentation
+
+
+
+Using:
+Local disk should have the following:
+/boot/
+/boot/db/
+and within /boot/db/, a boot.db file.
+Inside this file, include the path to the booting file you wish to use.
+dubios will check and make sure it's executable.
+
+A outside disk should have the same files.
+Please note that you dont have to do:
+
+/path/to/booting/file.lua
+
+You instead only have to do
+
+path/to/booting/file.lua
+
+Due to dubios's handling of disk paths.
