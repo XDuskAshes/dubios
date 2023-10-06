@@ -1,0 +1,12 @@
+dubios documentation
+How to use for solo use: Using by yourself with no OS.
+
+(Requires editing the file, the lines will be told to you directly.)
+
+1. On line 35, add a "-[["
+2. On line 93, add a "]]"
+3. In the table "bootPaths", add the entry "/rom/programs/shell.lua"
+4. Save and restart
+
+NOTE: In order to boot from disks, you will have to undo steps 1 & 2.
+Undoing step 3 is optional, it'll just return failure to find a local boot.db file and continue on.

@@ -1,0 +1,12 @@
+dubios documentation
+Path Handling: How dubios handles local vs disk paths
+
+Local:
+Start from root ("/")
+Search for "/boot/db/boot.db"
+Uses contents of the boot.db file and searches for the defined file.
+
+Disk:
+Start from disk root. ("/disk/", or "/disk0/" and so forth)
+Search for "/disk/boot/db/boot.db"
+Uses contents of the boot.db file and searches for the defined file, searching from the disk root instead.

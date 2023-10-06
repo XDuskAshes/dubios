@@ -1,6 +1,5 @@
 dubios documentation
-
-
+Basic Use
 
 Using:
 Local disk should have the following:
